@@ -1,13 +1,13 @@
--- NYEMEK HUB - MODULE BYPASS (THE FINAL ATTEMPT)
--- Mengincar internal ModuleScript Driving Empire
+-- NYEMEK HUB - CAR DEALERSHIP TYCOON EDITION
+-- Fitur Lama Tetap Ada + Fitur Baru CDT
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "Nyemek HuB", 
-   LoadingTitle = "Nyemek HuB: Module Hijacking",
-   LoadingSubtitle = "Final Attempt at UI Manipulation",
-   ConfigurationSaving = { Enabled = true, FolderName = "NyemekHub_DE", FileName = "Config" },
+   LoadingTitle = "Nyemek HuB: CDT Edition",
+   LoadingSubtitle = "Adapting to New Game...",
+   ConfigurationSaving = { Enabled = true, FolderName = "NyemekHub_CDT", FileName = "Config" },
    Discord = { Enabled = false },
    KeySystem = false,
 })
@@ -17,114 +17,115 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
--- Global Vars (Fitur Lama Tetap Ada)
-_G.AutoFarm = false
+-- Global Vars
+_G.VisualMoney = "$999,999,999"
+_G.AutoCollect = false
 _G.VehicleSpeed = 1
 _G.NoClip = false
 _G.InfiniteNitro = false
 
 -- ============================================
--- CORE: MODULE SCRIPT BYPASS
+-- CDT SPECIAL FUNCTIONS
 -- ============================================
 
-local function NyemekModuleBypass()
-    -- 1. Visual Money (Looping Agresif)
+local function ManipulateCDT()
+    -- 1. Visual Money Loop
     task.spawn(function()
         while true do
             pcall(function()
-                local pGui = player:FindFirstChild("PlayerGui")
-                if pGui then
-                    for _, v in pairs(pGui:GetDescendants()) do
-                        if v:IsA("TextLabel") and (v.Text:find(",") or v.Name:lower():find("money")) then
-                            v.Text = "$999,999,999"
+                local gui = player.PlayerGui:FindFirstChild("MainGui") or player.PlayerGui:FindFirstChild("HUD")
+                if gui then
+                    -- Mencari label uang di CDT
+                    for _, v in pairs(gui:GetDescendants()) do
+                        if v:IsA("TextLabel") and (v.Text:find("$") or v.Name:lower():find("cash")) then
+                            v.Text = _G.VisualMoney
                         end
                     end
                 end
             end)
-            task.wait(0.5)
+            task.wait(1)
         end
     end)
 
-    -- 2. Module Script Hijacking
-    -- Mencoba mencari modul yang mengatur data kendaraan
-    for _, v in pairs(getnilinstances()) do -- Mencari di instance yang disembunyikan
-        if v:IsA("ModuleScript") and (v.Name:find("Vehicle") or v.Name:find("Data")) then
-            local success, module = pcall(function() return require(v) end)
-            if success and type(module) == "table" then
-                -- Jika ketemu tabel kendaraan, kita paksa set jadi True (Owned)
-                for i, _ in pairs(module) do
-                    if type(module[i]) == "table" and module[i].Price then
-                        module[i].Price = 0
-                        module[i].IsOwned = true
-                    end
-                end
+    -- 2. Unlock All Cars (Visual/Session)
+    -- CDT menyimpan daftar mobil di ReplicatedStorage.Cars
+    local carFolder = ReplicatedStorage:FindFirstChild("Cars")
+    if carFolder then
+        -- Menipu sistem agar tombol 'Drive' muncul
+        for _, car in pairs(carFolder:GetChildren()) do
+            local val = player:FindFirstChild("OwnedCars") or player:FindFirstChild("Data")
+            if val and not val:FindFirstChild(car.Name) then
+                local b = Instance.new("BoolValue", val)
+                b.Name = car.Name
+                b.Value = true
             end
         end
     end
-
-    -- 3. UI Manual Refresh
-    -- Memaksa folder data player menerima nilai baru
-    local ownedFolder = player:FindFirstChild("OwnedVehicles") or player:FindFirstChild("Data")
-    if ownedFolder then
-        local categories = {"Vehicles", "Helicopters", "Planes", "Boats", "Bikes"}
-        for _, cat in pairs(categories) do
-            local folder = ReplicatedStorage:FindFirstChild(cat)
-            if folder then
-                for _, car in pairs(folder:GetChildren()) do
-                    if not ownedFolder:FindFirstChild(car.Name) then
-                        local b = Instance.new("BoolValue", ownedFolder)
-                        b.Name = car.Name
-                        b.Value = true
-                    end
-                end
-            end
-        end
-    end
-
-    Rayfield:Notify({
-        Title = "Nyemek HuB",
-        Content = "Module Bypass Sent! Coba buka/tutup Garage berkali-kali.",
-        Duration = 5
-    })
 end
 
 -- ============================================
--- NYEMEK HUB INTERFACE
+-- NYEMEK HUB TABS
 -- ============================================
 
 local MainTab = Window:CreateTab("🔓 Unlocker", 4483362458)
 MainTab:CreateButton({
-   Name = "💀 ULTIMATE MODULE BYPASS (Car/Heli/Boat/Motor)",
-   Callback = function() NyemekModuleBypass() end,
+   Name = "🚀 ACTIVATE CDT BYPASS (Cars & Money)",
+   Callback = function() 
+      ManipulateCDT()
+      Rayfield:Notify({Title = "Nyemek HuB", Content = "CDT Manipulated! Cek Dealership-mu."})
+   end,
 })
 
 local FarmTab = Window:CreateTab("💰 Auto Farm", 4483362458)
-FarmTab:CreateToggle({Name = "🏁 Start Farm", CurrentValue = false, Callback = function(v) _G.AutoFarm = v end})
+FarmTab:CreateToggle({
+   Name = "🏪 Auto Collect Dealer Cash",
+   CurrentValue = false,
+   Callback = function(v) _G.AutoCollect = v end,
+})
 
 local VehicleTab = Window:CreateTab("🚗 Vehicle", 4483362458)
-VehicleTab:CreateSlider({Name = "Speed", Range = {1, 25}, Increment = 1, CurrentValue = 1, Callback = function(v) _G.VehicleSpeed = v end})
-VehicleTab:CreateToggle({Name = "Nitro", CurrentValue = false, Callback = function(v) _G.InfiniteNitro = v end})
+VehicleTab:CreateSlider({Name = "Speed Multiplier", Range = {1, 10}, Increment = 1, CurrentValue = 1, Callback = function(v) _G.VehicleSpeed = v end})
+VehicleTab:CreateToggle({Name = "Infinite Nitro", CurrentValue = false, Callback = function(v) _G.InfiniteNitro = v end})
 
 local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
 PlayerTab:CreateSlider({Name = "Walkspeed", Range = {16, 200}, CurrentValue = 16, Callback = function(v) player.Character.Humanoid.WalkSpeed = v end})
 PlayerTab:CreateToggle({Name = "No Clip", CurrentValue = false, Callback = function(v) _G.NoClip = v end})
 
 -- ============================================
--- SYSTEM RUNTIME
+-- RUNTIME LOOPS
 -- ============================================
 
-game:GetService("RunService").Heartbeat:Connect(function()
-    local char = player.Character
-    local seat = (char and char:FindFirstChild("Humanoid") and char.Humanoid.SeatPart)
-    if seat and seat:IsA("VehicleSeat") then
-        seat.MaxSpeed = 500 * _G.VehicleSpeed
-        if _G.InfiniteNitro then
-            local n = seat.Parent:FindFirstChild("Nitro") or seat.Parent:FindFirstChild("Boost")
-            if n then n.Value = 100 end
+-- Auto Collect Logic
+task.spawn(function()
+    while task.wait(1) do
+        if _G.AutoCollect then
+            -- Remote CDT untuk mengambil uang dari mesin kasir dealer
+            local remote = ReplicatedStorage:FindFirstChild("Remotes")
+            if remote and remote:FindFirstChild("CollectCash") then
+                remote.CollectCash:FireServer()
+            end
         end
     end
 end)
 
+-- Vehicle Speed & Nitro
+game:GetService("RunService").Heartbeat:Connect(function()
+    local seat = (player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.SeatPart)
+    if seat and seat:IsA("VehicleSeat") then
+        if _G.VehicleSpeed > 1 then
+            seat.MaxSpeed = 300 * _G.VehicleSpeed
+        end
+        if _G.InfiniteNitro then
+            -- CDT Nitro logic
+            local stats = seat.Parent:FindFirstChild("Stats")
+            if stats and stats:FindFirstChild("Nitro") then
+                stats.Nitro.Value = 100
+            end
+        end
+    end
+end)
+
+-- NoClip
 game:GetService("RunService").Stepped:Connect(function()
     if _G.NoClip and player.Character then
         for _, v in pairs(player.Character:GetDescendants()) do
@@ -133,4 +134,4 @@ game:GetService("RunService").Stepped:Connect(function()
     end
 end)
 
-Rayfield:Notify({Title = "Nyemek HuB", Content = "Script Loaded - Ready for Last Resort"})
+Rayfield:Notify({Title = "Nyemek HuB", Content = "Ready for CDT!"})
