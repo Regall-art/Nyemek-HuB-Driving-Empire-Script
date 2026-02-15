@@ -1,13 +1,12 @@
--- NYEMEK HUB - DRIVING EMPIRE SESSION UNLOCKER
--- All Features + Full UI Manipulation (Temporary Session)
+-- NYEMEK HUB - ULTIMATE SESSION UNLOCKER (ALL VEHICLES)
+-- Merged with Helicopter, Plane, Motor, and Boat Injection
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- REPLACEMENT: Rayfield Branding removed and replaced with Nyemek HuB
 local Window = Rayfield:CreateWindow({
    Name = "Nyemek HuB", 
-   LoadingTitle = "Nyemek HuB",
-   LoadingSubtitle = "Made By Love",
+   LoadingTitle = "Nyemek HuB: Injecting All Assets",
+   LoadingSubtitle = "Car, Heli, Plane, Motor, Boat...",
    ConfigurationSaving = { Enabled = true, FolderName = "NyemekHub_DE", FileName = "Config" },
    Discord = { Enabled = false },
    KeySystem = false,
@@ -20,18 +19,18 @@ local Workspace = game:GetService("Workspace")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
--- Variables (Keeping Old Features)
+-- Global Vars
 _G.AutoFarm = false
 _G.VehicleSpeed = 1
 _G.NoClip = false
 _G.InfiniteNitro = false
 
 -- ============================================
--- CORE: VEHICLE UI MANIPULATION (NYEMEK STYLE)
+-- CORE: FULL CATEGORY MANIPULATION
 -- ============================================
 
-local function UnlockEverythingSession()
-    -- 1. Visual Money Spoof (Set to $999,999,999)
+local function UnlockAllCategories()
+    -- 1. Visual Money (999M)
     local pGui = player:WaitForChild("PlayerGui")
     for _, v in pairs(pGui:GetDescendants()) do
         if v:IsA("TextLabel") and (v.Text:find(",") or v.Name:lower():find("money")) then
@@ -39,53 +38,66 @@ local function UnlockEverythingSession()
         end
     end
 
-    -- 2. Injecting Vehicle List into Garage UI
-    -- Mencari folder database kendaraan game
-    local vehicleFolder = ReplicatedStorage:FindFirstChild("Vehicles")
+    -- 2. Comprehensive Vehicle Injection
+    -- Daftar folder potensial tempat game menyimpan data kendaraan
+    local vehiclePaths = {
+        ReplicatedStorage:FindFirstChild("Vehicles"),
+        ReplicatedStorage:FindFirstChild("Helicopters"),
+        ReplicatedStorage:FindFirstChild("Planes"),
+        ReplicatedStorage:FindFirstChild("Boats"),
+        ReplicatedStorage:FindFirstChild("Bikes") -- Biasanya untuk Motor
+    }
+
     local ownedFolder = player:FindFirstChild("OwnedVehicles") or player:FindFirstChild("Data")
     
-    if vehicleFolder and ownedFolder then
-        for _, car in pairs(vehicleFolder:GetChildren()) do
-            -- Suntik data kepemilikan palsu agar tombol SPAWN aktif di UI
-            if not ownedFolder:FindFirstChild(car.Name) then
-                local fakeCar = Instance.new("BoolValue")
-                fakeCar.Name = car.Name
-                fakeCar.Value = true
-                fakeCar.Parent = ownedFolder
+    if ownedFolder then
+        for _, folder in pairs(vehiclePaths) do
+            if folder then
+                for _, asset in pairs(folder:GetChildren()) do
+                    -- Suntik semua aset (Mobil, Heli, Pesawat, Motor, Kapal)
+                    if not ownedFolder:FindFirstChild(asset.Name) then
+                        local fakeOwnership = Instance.new("BoolValue")
+                        fakeOwnership.Name = asset.Name
+                        fakeOwnership.Value = true
+                        fakeOwnership.Parent = ownedFolder
+                    end
+                end
             end
         end
     end
 
-    -- 3. Force UI Refresh
-    -- Memaksa menu Garage untuk membaca ulang data 'OwnedVehicles' yang baru disuntik
-    local garageUI = pGui:FindFirstChild("Garage") or pGui:FindFirstChild("Menu")
-    if garageUI then
-        garageUI.Enabled = false
-        task.wait(0.1)
-        garageUI.Enabled = true
+    -- 3. Force UI Refresh (Garage & Vehicle Selection)
+    -- Mencoba merestart UI agar semua kategori terupdate
+    for _, uiName in pairs({"Garage", "Menu", "VehicleSpawn", "SpawnUI"}) do
+        local targetUI = pGui:FindFirstChild(uiName)
+        if targetUI then
+            targetUI.Enabled = false
+            task.wait(0.1)
+            targetUI.Enabled = true
+        end
     end
 
     Rayfield:Notify({
-        Title = "Nyemek HuB: Success",
-        Content = "All Vehicles Injected to Garage! (Temporary Session)",
+        Title = "Nyemek HuB: All Unlocked",
+        Content = "Cars, Heli, Planes, Motors, & Boats are now Spawnable!",
         Duration = 5
     })
 end
 
 -- ============================================
--- TABS & FEATURES (NYEMEK HUB)
+-- NYEMEK HUB INTERFACE
 -- ============================================
 
 local MainTab = Window:CreateTab("🔓 Unlocker", 4483362458)
 
 MainTab:CreateButton({
-   Name = "🚀 ACTIVATE NYEMEK UNLOCK (All Cars & Money)",
+   Name = "🚀 ACTIVATE ALL CATEGORY UNLOCK (Session Only)",
    Callback = function()
-      UnlockEverythingSession()
+      UnlockAllCategories()
    end,
 })
 
-MainTab:CreateSection("Note: Data akan kembali normal saat kamu Rejoin.")
+MainTab:CreateSection("Info: All Vehicles, Planes, & Boats are now temporarily yours.")
 
 local FarmTab = Window:CreateTab("💰 Auto Farm", 4483362458)
 FarmTab:CreateToggle({
@@ -94,7 +106,7 @@ FarmTab:CreateToggle({
    Callback = function(v) _G.AutoFarm = v end,
 })
 
-local VehicleTab = Window:CreateTab("🚗 Vehicle", 4483362458)
+local VehicleTab = Window:CreateTab("🚗 Vehicle Mods", 4483362458)
 VehicleTab:CreateSlider({
    Name = "Speed Multiplier",
    Range = {1, 20},
@@ -109,35 +121,25 @@ VehicleTab:CreateToggle({
 })
 
 local PlayerTab = Window:CreateTab("👤 Player", 4483362458)
-PlayerTab:CreateSlider({
-    Name = "Walkspeed", 
-    Range = {16, 200}, 
-    CurrentValue = 16, 
-    Callback = function(v) player.Character.Humanoid.WalkSpeed = v end
-})
-PlayerTab:CreateToggle({
-    Name = "No Clip", 
-    CurrentValue = false, 
-    Callback = function(v) _G.NoClip = v end
-})
+PlayerTab:CreateSlider({Name = "Walkspeed", Range = {16, 200}, CurrentValue = 16, Callback = function(v) player.Character.Humanoid.WalkSpeed = v end})
+PlayerTab:CreateToggle({Name = "No Clip", CurrentValue = false, Callback = function(v) _G.NoClip = v end})
 
 -- ============================================
--- RUNTIME SYSTEM
+-- SYSTEM RUNTIME
 -- ============================================
 
--- Nitro & Speed Logic
 RunService.Heartbeat:Connect(function()
-    local seat = (player.Character and player.Character:FindFirstChild("Humanoid") and player.Character.Humanoid.SeatPart)
+    local char = player.Character
+    local seat = (char and char:FindFirstChild("Humanoid") and char.Humanoid.SeatPart)
     if seat and seat:IsA("VehicleSeat") then
         seat.MaxSpeed = 500 * _G.VehicleSpeed
         if _G.InfiniteNitro then
-            local n = seat.Parent:FindFirstChild("Nitro")
+            local n = seat.Parent:FindFirstChild("Nitro") or seat.Parent:FindFirstChild("Boost")
             if n then n.Value = 100 end
         end
     end
 end)
 
--- Noclip Logic
 RunService.Stepped:Connect(function()
     if _G.NoClip and player.Character then
         for _, v in pairs(player.Character:GetDescendants()) do
@@ -146,7 +148,7 @@ RunService.Stepped:Connect(function()
     end
 end)
 
--- Anti AFK
+-- Anti-AFK
 local vu = game:GetService("VirtualUser")
 player.Idled:Connect(function()
     vu:Button2Down(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
@@ -154,5 +156,4 @@ player.Idled:Connect(function()
     vu:Button2Up(Vector2.new(0,0), Workspace.CurrentCamera.CFrame)
 end)
 
-Rayfield:Notify({Title = "Nyemek HuB Loaded", Content = "Script ready to use!"})
-Rayfield:Notify({Title = "Join Discord Nyemek HuB discord.gg/WrJRz4zRy6"})
+Rayfield:Notify({Title = "Nyemek HuB", Content = "Script Hybrid Loaded!"})
